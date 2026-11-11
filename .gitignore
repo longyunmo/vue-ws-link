@@ -1,0 +1,19 @@
+# Dependencies and generated output
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+
+# Hidden files and folders such as .name, .idea, and local editor settings
+.*
+!.gitignore
+!.npmignore
+!.npmrc
+!.nvmrc
+!.node-version
+!.editorconfig
+
+# Local environment files and OS metadata
+.env*
+.DS_Store
