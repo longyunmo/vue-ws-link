@@ -11,14 +11,46 @@ npm run dev
 
 演示页面连接 `wss://echo.websocket.org`。浏览器 WebSocket 不开放协议级 Ping 帧，因此默认每 5 秒发送应用层 JSON 心跳；生产服务端需按约定处理心跳消息。
 
-## 构建和安装
+## 发布到 npm
+
+首次发布或每次准备新版本时，先在 `package.json` 更新版本号。已发布过的版本号不能重复使用：
 
 ```bash
-npm run build
-npm pack
+npm version patch   # 修复版本，例如 1.0.0 -> 1.0.1
+# 或 npm version minor  # 新增兼容功能，例如 1.0.0 -> 1.1.0
+# 或 npm version major  # 不兼容改动，例如 1.0.0 -> 2.0.0
 ```
 
-发布到 npm 后，Vue 3 项目安装：
+安装锁文件中的依赖，构建并预览 npm 实际会上传的文件：
+
+```bash
+npm ci
+npm run release:check
+```
+
+打包清单应只包含 `package.json`、`README.md` 和 `dist/` 下的 JS 与 `.d.ts` 文件。`package.json` 的 `files` 白名单会排除 demo、源码、隐藏文件、`.idea` 等内容；`.gitignore` 用于 Git 忽略规则，不代替 npm 打包清单。
+
+确认版本号和清单无误后发布：
+
+```bash
+npm publish
+```
+
+包已在 `package.json` 固定为公开发布到 npm 官方 registry。`prepublishOnly` 会在发布前自动重新构建，因此正常发布时不需要手动再跑一次 build；`release:check` 用于发布前预览 tarball。
+
+### 使用当前安全密钥进行双因素验证
+
+账号设置显示已启用安全密钥时，不需要安装验证器或猜 6 位数字。使用电脑的 Touch ID / 系统安全密钥，或已绑定的实体安全密钥：
+
+1. 在项目终端运行 `npm publish`。
+2. 按 npm CLI 提示打开它给出的 npm 登录/验证链接。
+3. 在打开的 npm 页面选择 **Use security key**，按浏览器提示使用 Touch ID 或安全密钥。
+4. 若页面生成一次性验证 token，将其复制回 CLI 的 **Enter OTP** 提示。它是安全密钥流程生成的临时 token，不是密码，也不是验证器里的 6 位码。
+5. 等待 CLI 显示发布成功，再检查包页版本号。
+
+如果 CLI 只显示 `Enter OTP` 且没有验证链接，先运行 `npm login`，按终端给出的链接完成安全密钥验证，再重新运行 `npm publish`。不要运行 `npm stage publish`，那会进入单独的 staged publishing 流程。
+
+发布完成后，其他 Vue 3 项目可以安装：
 
 ```bash
 npm install vue-ws-link
